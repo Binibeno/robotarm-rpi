@@ -18,7 +18,13 @@
 # $ pip3 install numpy
 #
 # and run from the command line,
+# $ source ~/mp/bin/activate
 # $ python3 real_time_with_labels.py --model mobilenet_v2.tflite --label coco_labels.txt
+
+import os
+# fix camera on ssh 
+os.environ["DISPLAY"] = ":0"
+
 
 import argparse
 

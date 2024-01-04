@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../tf/picamera2/examples"
+		}
+	],
+	"settings": {}
+}

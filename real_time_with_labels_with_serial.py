@@ -21,6 +21,9 @@
 # $ source ~/mp/bin/activate
 # $ python3 real_time_with_labels.py --model mobilenet_v2.tflite --label coco_labels.txt
 
+import serial
+import serial.tools.list_ports
+
 import os
 # fix camera on ssh 
 os.environ["DISPLAY"] = ":0"
@@ -39,6 +42,59 @@ lowresSize = (320, 240)
 
 rectangles = []
 
+def sysprint(a):
+    print('\033[92m' + "SYS: " +'\033[0m' + str(a))
+
+def init_serial():
+    ports = [comport.device for comport in serial.tools.list_ports.comports()]
+    sysprint(ports)
+    
+    
+    
+    if (ports.__len__() == 0):
+        sysprint("No ports available")
+        exit()
+    
+    port = ports[0]
+    
+    global ser
+    #  countiously read port and print data
+    ser = serial.Serial(port, 9600, timeout=1)
+    ser.close()
+    ser.open()
+    while True:
+        # read_val = ser.read(size=64)
+        # if (read_val != '' )and (read_val != b''):
+        #     read_val = read_val.decode('utf-8')
+        #     print(read_val)
+        # time.sleep(0.1)
+    
+        #  read serial line by line
+        line = ser.readline()
+        if (line != '' )and (line != b''):
+            nice = line.decode('utf-8')
+            print("COM: " + nice)
+            if (line == b'READY\r\n'):
+                sysprint("Arm Ready. Start sending commands.")
+                break
+            
+            
+            
+    ser.write(b"m1090\r\n")
+    time.sleep(0.001)
+    
+    ser.write(b"m2040\r\n")
+    time.sleep(0.001)
+    
+    ser.write(b"m0100\r\n")
+    time.sleep(0.001)
+    
+    ser.write(b"u\r\n")
+
+
+def map_range(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
+
 
 def ReadLabelFile(file_path):
     with open(file_path, 'r') as f:
@@ -49,6 +105,10 @@ def ReadLabelFile(file_path):
         ret[int(pair[0])] = pair[1].strip()
     return ret
 
+def current_milli_time():
+    return round(time.time() * 1000)
+
+lastMove = 0;
 
 def DrawRectangles(request):
     with MappedArray(request, "main") as m:
@@ -59,6 +119,34 @@ def DrawRectangles(request):
         # y max = 240 at the bottom of the image
         # rectangles = [[10, 10, 310, 230]]
 
+        if len(rectangles) == 1:
+
+             # rect y center
+            rect_y_center = (rectangles[0][1] + rectangles[0][3]) / 2
+            # rect x center
+            rect_x_center = (rectangles[0][0] + rectangles[0][2]) / 2
+
+
+            # map x and y to 0-320 to 40-140
+            arm_rot = map_range(rect_x_center, 0, 320, 40, 140)
+            pad_rot = str(arm_rot).rjust(3, "0")
+            sysprint(pad_rot)
+            command = "m0" + pad_rot + "\r\n"
+            bytes = str.encode(command)
+
+            global lastMove
+            if (current_milli_time() - lastMove > 500):
+                lastMove = current_milli_time()
+                ser.write(bytes)
+
+                time.sleep(0.001)
+
+                ser.write(b"u\r\n")
+                time.sleep(0.001)
+
+            
+
+            
 
         for rect in rectangles:
 
@@ -184,6 +272,9 @@ def main():
 
     picam2.start()
 
+    sysprint("Starting Serial...")
+    init_serial()
+
     while True:
         buffer = picam2.capture_buffer("lores")
         grey = buffer[:stride * lowresSize[1]].reshape((lowresSize[1], stride))
@@ -192,6 +283,6 @@ def main():
 
 
 
-
 if __name__ == '__main__':
     main()
+

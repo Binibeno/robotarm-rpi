@@ -106,6 +106,8 @@ while True:
   # add the 2 images together. It adds all the pixel values, 
   # so the result is white background and the the green from the first image
   final = cv2.add(only_green, masked_bg)
+
+
   cv2.imshow("Camera", final)
   # required to update
   cv2.waitKey(1)

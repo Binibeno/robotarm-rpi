@@ -23,6 +23,6 @@ preview_config = picam2.create_preview_configuration(main={"size": (800 , 600 )}
 picam2.configure(preview_config)
 
 picam2.start()
-time.sleep(2)
+time.sleep(20)
 
-picam2.capture_file("test2.png")
+# picam2.capture_file("test2.png")

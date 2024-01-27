@@ -62,6 +62,10 @@ def init_serial():
     ser = serial.Serial(port, 9600, timeout=1)
     ser.close()
     ser.open()
+    time.sleep(0.001)
+
+    ser.write(b"check\r\n")
+    time.sleep(0.001)
     while True:
         # read_val = ser.read(size=64)
         # if (read_val != '' )and (read_val != b''):
@@ -110,6 +114,50 @@ def current_milli_time():
 
 lastMove = 0;
 
+def armToCM(cmx):
+
+    radius = cmx
+
+    radiusMin = 14.5; #14,5 cm
+    radiusMax = 43.5; #43,5 cm
+    aMin = 90; # if a=90-70=20 then b=90+70=160 
+    aMax = 20; # m1 fully extended
+
+    # m2
+    bMin = 0; #   fully retracted
+    bMax = 70; # fully extended
+    # m3
+    cMin = 0; #   fully retracted
+    cMax = 70; # fully extended
+
+
+    b = map_range(radius, radiusMin, radiusMax, bMin, bMax);
+    def calcAfromB(b):
+        return 90 - b; 
+
+    a = calcAfromB(b);
+
+    # motor index (0-5), motor angle
+    def moveMotor(index, pos):
+        # ! WARNING: NO SAFETY!
+        pad_rot = str(pos).rjust(3, "0")
+        command = "m" + str(index) + pad_rot + "\r\n"
+        bytes = str.encode(command)
+        ser.write(bytes)
+        time.sleep(0.001)
+
+
+    moveMotor(1, a)
+    moveMotor(2, b)
+    moveMotor(3, b) 
+    # if motor 4 would be at a different place it would be set to a
+
+    ser.write(b"u\r\n")
+    time.sleep(0.001)
+
+
+
+
 def DrawRectangles(request):
     with MappedArray(request, "main") as m:
         # x min = 0 in the most left side of the image
@@ -118,35 +166,6 @@ def DrawRectangles(request):
         # y min = 0 at the top of the image
         # y max = 240 at the bottom of the image
         # rectangles = [[10, 10, 310, 230]]
-
-        if len(rectangles) == 1:
-
-             # rect y center
-            rect_y_center = (rectangles[0][1] + rectangles[0][3]) / 2
-            # rect x center
-            rect_x_center = (rectangles[0][0] + rectangles[0][2]) / 2
-
-
-            # map x and y to 0-320 to 40-140
-            arm_rot = map_range(rect_x_center, 0, 320, 40, 140)
-            pad_rot = str(arm_rot).rjust(3, "0")
-            sysprint(pad_rot)
-            command = "m0" + pad_rot + "\r\n"
-            bytes = str.encode(command)
-
-            global lastMove
-            if (current_milli_time() - lastMove > 500):
-                lastMove = current_milli_time()
-                ser.write(bytes)
-
-                time.sleep(0.001)
-
-                ser.write(b"u\r\n")
-                time.sleep(0.001)
-
-            
-
-            
 
         for rect in rectangles:
 
@@ -235,6 +254,34 @@ def InferenceTensorFlow(image, model, output, label=None):
             else:
                 print('score = ', score)
 
+def processArm():
+    
+    if len(rectangles) == 1:
+         # rect y center
+        rect_y_center = (rectangles[0][1] + rectangles[0][3]) / 2
+        # rect x center
+        rect_x_center = (rectangles[0][0] + rectangles[0][2]) / 2
+        # map x and y to 0-320 to 40-140
+        arm_rot = map_range(rect_x_center, 0, 320, 40, 140)
+        pad_rot = str(arm_rot).rjust(3, "0")
+        # sysprint(pad_rot)
+        # command = "m0" + pad_rot + "\r\n"
+        # bytes = str.encode(command)
+        global lastMove
+        if (current_milli_time() - lastMove > 1000):
+            lastMove = current_milli_time()
+            # ser.write(bytes)
+            # time.sleep(0.001)
+            radiusMin = 14.5; #14,5 cm
+            radiusMax  = 43.5; #43,5 cm
+            
+            armReach = map_range(rect_y_center, 240, 0, 14.5, 43.5)
+            if (rect_y_center > radiusMax):
+                rect_y_center = radiusMax
+            
+            sysprint(armReach)
+            # REVERSED!!
+            armToCM(armReach)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -279,7 +326,9 @@ def main():
         buffer = picam2.capture_buffer("lores")
         grey = buffer[:stride * lowresSize[1]].reshape((lowresSize[1], stride))
         _ = InferenceTensorFlow(grey, args.model, output_file, label_file)
+        processArm()
         # time.delay(100)
+        # print("ISSUE  with cuRRNENT SYSTEM: ARDUINO OVERLOADS AN FREEZES, PROBABLY BECAUSE OF TOO FAST SERIAL")
 
 
 

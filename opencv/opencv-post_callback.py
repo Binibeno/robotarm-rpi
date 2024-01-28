@@ -11,7 +11,7 @@ import cv2
 from picamera2 import Picamera2, Preview,MappedArray
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_preview_configuration())
+picam2.configure(picam2.create_preview_configuration(queue=False))
 picam2.start_preview(Preview.QTGL)
 
 
@@ -30,7 +30,10 @@ def draw(request):
       print("callled")
       # m.array is the input image for opencv functions
       # -1 fills in the rect.
-      cv2.rectangle(m.array, (30, 50), (70, 90), (0, 255, 0, 0), -1)
+      img = np.zeros([100,100,3],dtype=np.uint8)
+      img.fill(255) # or img[:] = 255
+      cv2.rectangle(img, (30, 50), (70, 90), (0, 255, 0, 0), -1)
+      m.array = img
 
 
 # callback - here I can use opencv

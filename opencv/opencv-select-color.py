@@ -17,12 +17,15 @@ picam2.configure(preview_config)
 cv2.startWindowThread()
 
 
+
 # called after every frame
 def draw(request):
     with MappedArray(request, "main") as m:
       # m.array is the input image for opencv functions
       # -1 fills in the rect.
       # cv2.rectangle(m.array, (30, 50), (70, 90), (0, 255, 0, 0), -1)
+
+      #! code from https://stackoverflow.com/a/53989391/13167888
 
       # convert to HSV
       hsv = cv2.cvtColor(m.array, cv2.COLOR_BGR2HSV) 

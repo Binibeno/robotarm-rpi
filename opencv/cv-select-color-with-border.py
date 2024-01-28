@@ -43,8 +43,11 @@ while True:
       # Draw the bounding box on the original image (optional)
       cv2.rectangle(img, top_left, bottom_right, (0, 255, 0), 2)
 
-      # Display the image with bounding box (optional)
-      cv2.imshow("Green Mask Bounding Box", img)
-      cv2.waitKey(1)
+
   else:
       print("No green mask found in the image.")
+
+  # Display the image with bounding box (optional)
+  cv2.imshow("Green Mask Bounding Box", img)
+  cv2.waitKey(1)
+    

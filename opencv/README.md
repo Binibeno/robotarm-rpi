@@ -3,6 +3,10 @@
 - opencv-select-color.py: Will only show bright green colored objects on a solid white background. (source: https://stackoverflow.com/a/53989391/13167888)
 - cv-select-color-with-border.py: select-color rewritten, gets coords and display a border around the object. (see: https://stackoverflow.com/q/59334191/13167888)
 - cv-color-serial.py: move the robotarm based on colors. **LATEST**
+
+- readcom_simple.py: Simply find and read a serial port. 
+- movearm.py: The arm-servo-angle calculating algorithm ported to python. 
+
 All examples named are available in the examples directory. Online: https://github.com/raspberrypi/picamera2/tree/main/examples
 Full docs: https://datasheets.raspberrypi.com/camera/picamera2-manual.pdf
 

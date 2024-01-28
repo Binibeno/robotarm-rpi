@@ -24,6 +24,10 @@ os.environ["DISPLAY"] = ":0"
 ```
 This will fix the preview window on ssh, if you forgot to do it beforehand. 
 
+# Dev IDE setup
+I use vscode on my laptop, and use the remote ssh extension to connect to the pi.
+I've also created a workspace with 2 folders (located at different paths) added to it. One of them are the example from the github repo above, the other is my own code (and repo).
+
 # How not to kill your camera!
 - Static electricity can kill the camera. No joke. Touch something metal before touching the camera. **The camera runs at a really low voltage!**
 - NEVER unplug or even mess around with the connector while the raspberry pi has power. Even when the raspberry pi is off. Disconnect from all power (even monitor!) before messing with the connector. Negative and positive terminals are right next to each other and can easily short out.

@@ -10,8 +10,8 @@ from picamera2 import Picamera2, Preview,MappedArray
 
 picam2 = Picamera2()
 
-# preview_config = picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (800 , 600 )})
-preview_config = picam2.create_preview_configuration(main={"format": 'RGB888', "size": (800 , 600 )})
+preview_config = picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (800 , 600 )})
+# preview_config = picam2.create_preview_configuration(main={"format": 'RGB888', "size": (800 , 600 )})
 picam2.configure(preview_config)
 
 
@@ -22,16 +22,12 @@ picam2.start()
 
 while True:
   img = picam2.capture_array()
-#   hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    #  b,g,r
-  lower_val = np.array([ 80, 0, 0])
-  upper_val = np.array([ 140, 30,20])
-
+  hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
   #  (H, S, V)
-#   lower_val = np.array([50, 100, 170])
-#   upper_val = np.array([70, 255, 255])
+  lower_val = np.array([50, 100, 170])
+  upper_val = np.array([70, 255, 255])
 
-  mask = cv2.inRange(img, lower_val, upper_val)
+  mask = cv2.inRange(hsv, lower_val, upper_val)
 
   # Find contours in the mask
   contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

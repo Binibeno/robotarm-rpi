@@ -14,7 +14,23 @@ r = 0
 g = 0
 b = 0
 
-title = "CLICK TO GRAB RGB"
+title = "CLICK PIXEL FOR RGB/HSV"
+
+
+# like used in google color picker
+def hsv_to_standard(h, s, v):
+    # Ensure input values are within the valid range
+    h = max(0, min(255, h))
+    s = max(0, min(255, s))
+    v = max(0, min(255, v))
+
+    # Convert H, S, V to the standard range
+    h_standard = (h / 255) * 360
+    s_standard = (s / 255) * 100
+    v_standard = (v / 255) * 100
+
+    return h_standard, s_standard, v_standard
+
 
 # function to display the coordinates of 
 # of the points clicked on the image  
@@ -28,12 +44,10 @@ def click_event(event, x, y, flags, params):
   
         # displaying the coordinates 
         # on the Shell 
-        print(x, ' ', y) 
+        # print(x, ' ', y) 
         clickposx = x
         clickposy  = y
 
-
-        
         # ! y,x
         b = img[y, x, 0] 
         g = img[y, x, 1] 
@@ -43,15 +57,20 @@ def click_event(event, x, y, flags, params):
         title = "RGB: " + str(r) + " " + str(g) + " " + str(b)
 
 
-        # displaying the coordinates 
-        # on the image window 
-        # font = cv2.FONT_HERSHEY_SIMPLEX 
-        # cv2.putText(img, str(x) + ',' +
-        #             str(y), (x,y), font, 
-        #             1, (255,0,0), 2) 
-        # cv2.imshow('image', img) 
-
-
+        # HSV
+        
+        frame_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        h = frame_HSV[y, x, 0] 
+        s = frame_HSV[y, x, 1]
+        v = frame_HSV[y, x, 2] 
+        #! goes from 0-255
+        
+        h_standard, s_standard, v_standard = hsv_to_standard(h, s, v)
+        h_standard = str(round(h_standard))
+        s_standard = str(round(s_standard))
+        v_standard = str(round(v_standard))
+        #! standard, you can input this into google color picker and get about the same values if you were to input the RGB values
+        print("HSV-standard: ", h_standard + "°,", s_standard + "%,",  v_standard + "%")
   
     # checking for right mouse clicks      
     if event==cv2.EVENT_RBUTTONDOWN: 

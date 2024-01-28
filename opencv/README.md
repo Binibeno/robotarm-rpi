@@ -7,8 +7,62 @@
 - readcom_simple.py: Simply find and read a serial port. 
 - movearm.py: The arm-servo-angle calculating algorithm ported to python. 
 
+
+## Creations with color detection (and not AI)
+- **LATEST** cv-inRange-autoColor.py: Imroved cv-inRange-demo, automatically detects the color of the pixel clicked, and uses that as the color to make a mask.
+- cv-get-color.py: Get the color of the pixel clicked, in RGB and HSV format
+- cv-select-color-with-border(-HSV).py: Creates a mask from a given color range, and draws a border around the object.
+
+
+## Color info: 
+The image can either be in BGR or HSV format. Default is GRB. Converting to HSV takes some processing. 
+Many examples convert to HSV because its easier to select colors. (Easier to get all the shades of a single color than in RGB)
+The format can be defined at the camera configuration. (when starting the preview)
+```
+picam2.configure(picam2.create_preview_configuration(main={"format": "RGB888", "size": (800 , 600 )}))
+```
+Some files use `"format": "RGB888"`, this is a bit tricky.
+[x, B, G, R]
+or 
+[R, G, B]
+
+### How to access individual pixels:
+```
+im = picam2.capture_array()
+
+#! im[y,x] # first pixel
+im[0,0] # first pixel
+
+im[0,0,0] # first pixel, first color (B or H)
+im[0,0,1] # first pixel, second color (G or S)
+im[0,0,2] # first pixel, third color (R or V)
+```
+**IMPORTANT: The format is Y, X.**
+
+### Converting between HSV and RGB - And Google Color Picker
+Color picker: https://www.google.com/search?q=color+picker
+
+In opencv the HSV range is:
+H: 0-255, S: 0-255, V: 0-255 \
+This is not the standard. To use in Google Color Picker, for example (where: H: 0-360, S: 0-100, V: 0-100), you need to convert it.
+```
+# like used in google color picker
+def hsv_to_standard(h, s, v):
+  # Ensure input values are within the valid range
+  h = max(0, min(255, h))
+  s = max(0, min(255, s))
+  v = max(0, min(255, v))
+  # Convert H, S, V to the standard range
+  h_standard = (h / 255) * 360
+  s_standard = (s / 255) * 100
+  v_standard = (v / 255) * 100
+  return h_standard, s_standard, v_standard
+```
+
 All examples named are available in the examples directory. Online: https://github.com/raspberrypi/picamera2/tree/main/examples
 Full docs: https://datasheets.raspberrypi.com/camera/picamera2-manual.pdf
+
+
 
 # How to setup
 Follow this guide: https://gist.github.com/Binibeno/61ae0e4fa730402714cbebe7d24436de

@@ -1,3 +1,5 @@
+# forked from: https://docs.opencv.org/3.4/da/d97/tutorial_threshold_inRange.html
+
 from __future__ import print_function
 import cv2 as cv
 import argparse
@@ -5,12 +7,8 @@ import argparse
 from picamera2 import Picamera2, Preview,MappedArray
 
 picam2 = Picamera2()
-
 preview_config = picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (800 , 600 )})
 picam2.configure(preview_config)
-# callback - here I can use opencv
-# picam2.post_callback = draw
-
 picam2.start()
 
 
@@ -24,7 +22,7 @@ high_H = max_value_H
 high_S = max_value
 high_V = max_value
 window_capture_name = 'Video Capture'
-window_detection_name = 'Object Detection'
+window_detection_name = 'Object Detection (mask)'
 low_H_name = 'Low H'
 low_S_name = 'Low S'
 low_V_name = 'Low V'
@@ -32,7 +30,7 @@ high_H_name = 'High H'
 high_S_name = 'High S'
 high_V_name = 'High V'
 
-def setfromMain(H, S, V):
+def errorFromColor(H, S, V):
     # low_H should be: H - 10
     # high_H should be: H + 10
 
@@ -47,10 +45,9 @@ def setfromMain(H, S, V):
     high_V = int(max(0, min(255, V+10)))
 
 
-    print(low_H, low_S)
+    
+# forked from: https://docs.opencv.org/3.4/da/d97/tutorial_threshold_inRange.html
 
-
-# cv.RGB
 def on_low_H_thresh_trackbar(val):
     global low_H
     global high_H
@@ -87,12 +84,9 @@ def on_high_V_thresh_trackbar(val):
     high_V = val
     high_V = max(high_V, low_V+1)
     cv.setTrackbarPos(high_V_name, window_detection_name, high_V)
-parser = argparse.ArgumentParser(description='Code for Thresholding Operations using inRange tutorial.')
-parser.add_argument('--camera', help='Camera divide number.', default=0, type=int)
-args = parser.parse_args()
 
 
-cap =    picam2.capture_array()
+
 
 cv.namedWindow(window_capture_name)
 cv.namedWindow(window_detection_name)
@@ -103,13 +97,6 @@ cv.createTrackbar(high_S_name, window_detection_name , high_S, max_value, on_hig
 cv.createTrackbar(low_V_name, window_detection_name , low_V, max_value, on_low_V_thresh_trackbar)
 cv.createTrackbar(high_V_name, window_detection_name , high_V, max_value, on_high_V_thresh_trackbar)
 
-clickposx = 50
-clickposy = 50
-r = 0 
-g = 0
-b = 0
-
-title = "CLICK TO GRAB RGB"
 
 # like used in google color picker
 def hsv_to_standard(h, s, v):
@@ -127,22 +114,12 @@ def hsv_to_standard(h, s, v):
 
 
 
-# function to display the coordinates of 
-# of the points clicked on the image  
 def click_event( event, x, y, flags, params): 
     img = cap
-    global clickposx
-    global clickposy
-    global title
-    global r, g, b
+
     # checking for left mouse clicks 
     if event == cv.EVENT_LBUTTONDOWN: 
   
-        # displaying the coordinates 
-        # on the Shell 
-        # print(x, ' ', y) 
-        clickposx = x
-        clickposy  = y        
         # ! y,x
         b = img[y, x, 0] 
         g = img[y, x, 1] 
@@ -167,16 +144,15 @@ def click_event( event, x, y, flags, params):
         # you can double check this using the google color picker!
 
         # set to current range
-        setfromMain(h, s, v)
+        errorFromColor(h, s, v)
 
 
 
 
 while True:
-    
+    cap = picam2.capture_array()
     frame = cap
-    if frame is None:
-        break
+
     frame_HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
     frame_threshold = cv.inRange(frame_HSV, (low_H, low_S, low_V), (high_H, high_S, high_V))
     
@@ -185,6 +161,4 @@ while True:
     cv.imshow(window_capture_name, frame)
     cv.imshow(window_detection_name, frame_threshold)
     
-    key = cv.waitKey(30)
-    if key == ord('q') or key == 27:
-        break
+    cv.waitKey(1)

@@ -30,4 +30,4 @@ while True:
   cv2.waitKey(1)
 
 time.sleep(60)
-# do not use while true, it will slow down the FPS for some fuking reason
+# do not use while true, it will slow down the FPS for some reason

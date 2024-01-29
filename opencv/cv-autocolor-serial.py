@@ -1,8 +1,13 @@
 # forked from: https://docs.opencv.org/3.4/da/d97/tutorial_threshold_inRange.html
 
-from __future__ import print_function
+
 import cv2 as cv
-import argparse
+import serial
+import serial.tools.list_ports
+import serialapi
+import os
+# fix camera on ssh 
+os.environ["DISPLAY"] = ":0"
 
 from picamera2 import Picamera2, Preview,MappedArray
 
@@ -12,6 +17,8 @@ picam2.configure(preview_config)
 picam2.start()
 
 
+print("Starting serial...")
+ser = serialapi.init_serial()
 
 max_value = 255
 max_value_H = 360//2
@@ -36,25 +43,16 @@ def errorFromColor(H, S, V):
 
     global low_H, high_H, low_S, high_S, low_V, high_V
 
-    # tolerance 
-    t = 20
-    low_H = int(max(0, min(255, H - t)))
-    high_H = int(max(0, min(255, H+t)))
-    low_S = int(max(0, min(255, S-t)))
-    high_S = int(max(0, min(255, S+t)))
-    low_V = int(max(0, min(255, V-t)))
-    high_V = int(max(0, min(255, V+t)))
+    
+    low_H = int(max(0, min(255, H - 10)))
+    high_H = int(max(0, min(255, H+10)))
+    low_S = int(max(0, min(255, S-10)))
+    high_S = int(max(0, min(255, S+10)))
+    low_V = int(max(0, min(255, V-10)))
+    high_V = int(max(0, min(255, V+10)))
 
 
-
-def updateTrackbars():
-    cv.setTrackbarPos(low_H_name, window_detection_name, low_H)
-    cv.setTrackbarPos(high_H_name, window_detection_name, high_H)
-    cv.setTrackbarPos(low_S_name, window_detection_name, low_S)
-    cv.setTrackbarPos(high_S_name, window_detection_name, high_S)
-    cv.setTrackbarPos(low_V_name, window_detection_name, low_V)
-    cv.setTrackbarPos(high_V_name, window_detection_name, high_V)
-
+    
 # forked from: https://docs.opencv.org/3.4/da/d97/tutorial_threshold_inRange.html
 
 def on_low_H_thresh_trackbar(val):
@@ -154,32 +152,6 @@ def click_event( event, x, y, flags, params):
 
         # set to current range
         errorFromColor(h, s, v)
-        # update with correct values
-        updateTrackbars()
-
-
-def drawBox(mask, img):
-      # Find contours in the mask
-    contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-
-    tempImage = img
-    for cont in contours:
-    # if contours:
-      # for every contour
-        # Get the bounding box of the first contour
-        x, y, w, h = cv.boundingRect(cont)
-
-        top_left = (x, y)
-        bottom_right = (x + w, y + h)
-
-        print("Top left coordinate:", top_left)
-        print("Bottom right coordinate:", bottom_right)
-
-        # Draw the bounding box on the original image (optional)
-        cv.rectangle(tempImage, top_left, bottom_right, (0, 255, 0), 2)
-
-    return tempImage 
-
 
 
 
@@ -191,11 +163,9 @@ while True:
     frame_HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
     frame_threshold = cv.inRange(frame_HSV, (low_H, low_S, low_V), (high_H, high_S, high_V))
     
-
-    withBox = drawBox(frame_threshold, frame)
     cv.setMouseCallback(window_capture_name, click_event) 
     
-    cv.imshow(window_capture_name, withBox)
+    cv.imshow(window_capture_name, frame)
     cv.imshow(window_detection_name, frame_threshold)
     
     cv.waitKey(1)

@@ -9,10 +9,13 @@
 
 
 ## Creations with color detection (and not AI)
-- **LATEST** cv-inRange-autoColor.py: Imroved cv-inRange-demo, automatically detects the color of the pixel clicked, and uses that as the color to make a mask.
+- cv-inRange-autoColor.py: Imroved cv-inRange-demo, automatically detects the color of the pixel clicked, and uses that as the color to make a mask.
+-  **LATEST** cv-autocolor-serial.py: cv-inRange-autoColor with the ability to control the robot arm with serial.
 - cv-get-color.py: Get the color of the pixel clicked, in RGB and HSV format
 - cv-select-color-with-border(-HSV).py: Creates a mask from a given color range, and draws a border around the object.
 
+## Creations with AI
+- real_time_with_labels_with_serial.py: Uses one of the example models to extend to robot arm to follow the detected object.
 
 ## Color info: 
 The image can either be in BGR or HSV format. Default is GRB. Converting to HSV takes some processing. 

@@ -22,6 +22,8 @@ port = ports[0]
 ser = serial.Serial(port, 9600, timeout=1)
 ser.close()
 ser.open()
+ser.write(b"check\r\n")
+time.sleep(0.001)
 while True:
     # read_val = ser.read(size=64)
     # if (read_val != '' )and (read_val != b''):
@@ -57,6 +59,15 @@ time.sleep(0.001)
 def map_range(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
+# motor index (0-5), motor angle
+def moveMotor(index, pos):
+    # ! WARNING: NO SAFETY!
+    pad_rot = str(pos).rjust(3, "0")
+    sysprint(pad_rot)
+    command = "m" + str(index) + pad_rot + "\r\n"
+    bytes = str.encode(command)
+    ser.write(bytes)
+    time.sleep(0.001)
 
 def armToCM(cmx):
 
@@ -81,15 +92,6 @@ def armToCM(cmx):
 
     a = calcAfromB(b);
 
-    # motor index (0-5), motor angle
-    def moveMotor(index, pos):
-        # ! WARNING: NO SAFETY!
-        pad_rot = str(pos).rjust(3, "0")
-        sysprint(pad_rot)
-        command = "m" + str(index) + pad_rot + "\r\n"
-        bytes = str.encode(command)
-        ser.write(bytes)
-        time.sleep(0.001)
 
 
     moveMotor(1, a)
@@ -102,11 +104,18 @@ def armToCM(cmx):
 
 
 
-armToCM(21.9)
+# armToCM(14.5)
 
-time.sleep(10)
+# time.sleep(10)
 
-armToCM(14.5)
+armToCM(43.5)
+
+moveMotor(0, 90)
+moveMotor(5, 90)
+
+
+ser.write(b"u\r\n")
+time.sleep(0.001)
 
 time.sleep(3)
 

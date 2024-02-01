@@ -7,5 +7,327 @@
 			"path": "/home/admin/tf/picamera2/examples"
 		}
 	],
-	"settings": {}
+	"settings": {
+		
+			"workbench.colorCustomizations": {
+			  "debugConsole.infoForeground": "#e2dbdb",
+			  "debugConsole.errorForeground": "#ff0000"
+			  //debugConsole.warningForeground
+			  //debugConsole.sourceForeground,
+			},
+			"explorer.confirmDragAndDrop": false,
+			"[html]": {
+			  "editor.defaultFormatter": "vscode.html-language-features"
+			},
+			"[dart]": {
+			  "editor.formatOnSave": true,
+			  "editor.formatOnType": true,
+			  // "editor.rulers": [
+			  //   100
+			  // ],
+			  "editor.selectionHighlight": false,
+			  "editor.suggest.snippetsPreventQuickSuggestions": false,
+			  "editor.tabCompletion": "onlySnippets",
+			  "editor.wordBasedSuggestions": "off"
+			},
+			"editor.formatOnPaste": true,
+			"[javascript]": {
+			  "editor.defaultFormatter": "vscode.typescript-language-features"
+			},
+			"terminal.integrated.commandsToSkipShell": [
+			  "psl.stepIn",
+			  "psl.stepOut",
+			  "psl.stepOver",
+			  "psl.sendToHostTerminal"
+			],
+			"git.enableSmartCommit": true,
+			"python.autoComplete.extraPaths": [
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.35773\\out",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.35946\\out",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36197\\out",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36197\\out\\micropython",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36197\\out\\clue",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36197\\out\\base_circuitpython",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36321\\out",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36321\\out\\micropython",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36321\\out\\clue",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36321\\out\\base_circuitpython"
+			],
+			"workbench.startupEditor": "welcomePage",
+			"dart.debugExternalLibraries": false,
+			"dart.debugSdkLibraries": false,
+			"dart.warnWhenEditingFilesOutsideWorkspace": false,
+			"gitlens.views.repositories.files.layout": "tree",
+			"editor.quickSuggestionsDelay": 10,
+			"[json]": {
+			  "editor.defaultFormatter": "vscode.json-language-features"
+			},
+			"[typescript]": {
+			  "editor.defaultFormatter": "esbenp.prettier-vscode"
+			},
+			"indentRainbow.colors": [
+			  "rgba(16,16,16,0.2)",
+			  "rgba(16,16,16,0.3)",
+			  "rgba(16,16,16,0.4)",
+			  "rgba(16,16,16,0.5)",
+			  "rgba(16,16,16,0.6)",
+			  "rgba(16,16,16,0.7)"
+			],
+			"indentRainbow.excludedLanguages": ["plaintext", "markdown"],
+			"indentRainbow.ignoreErrorLanguages": ["css", "json", "ino"],
+			"[jsonc]": {
+			  "editor.defaultFormatter": "esbenp.prettier-vscode"
+			},
+			"dart.allowAnalytics": false,
+			"dart.lineLength": 130,
+			"editor.quickSuggestions": {
+			  "comments": "on",
+			  "strings": "on",
+			  "other": "on"
+			},
+			"zenMode.fullScreen": false,
+			"workbench.editor.enablePreview": true,
+			"css.enabledLanguages": ["html"],
+			"[css]": {
+			  "editor.suggest.insertMode": "replace",
+			  "editor.defaultFormatter": "vscode.css-language-features"
+			},
+			"editor.parameterHints.enabled": true,
+			"liveServer.settings.port": 5500,
+			"remotefs.remote": {
+			  "binibeno": {
+				"host": "titan.web-server.hu",
+				"port": 21,
+				"scheme": "ftp",
+				"username": "binibeno",
+				"password": "gmh83ImT",
+				"rootPath": "/web"
+			  }
+			},
+			"cssPeek.enable": true,
+			"cssPeek.peekFromLanguages": [
+			  "html",
+			  "django-html",
+			  "laravel-blade",
+			  "razor",
+			  "vue",
+			  "blade",
+			  "pug",
+			  "jade",
+			  "handlebars",
+			  "php",
+			  "twig",
+			  "md",
+			  "nunjucks",
+			  "javascript",
+			  "javascriptreact",
+			  "erb",
+			  "typescript",
+			  "typescriptreact",
+			  "HTML (Eex)",
+			  "html-eex",
+			  "ejs",
+			  "css"
+			],
+			"css.styleSheets": ["*"],
+			"settingsSync.ignoredExtensions": ["tobiah.unity-tools"],
+			"vsicons.dontShowNewVersionMessage": true,
+			"workbench.productIconTheme": "fluent-icons",
+			// show terminal tabs
+			"terminal.integrated.tabs.enabled": true,
+			"git.autofetch": true,
+			"files.watcherExclude": {
+			  "**/build/*/**": true,
+			  "**/output": true
+			},
+			"search.exclude": {
+			  "**/node_modules": true,
+			  "build": true,
+			  "**/output": true
+			},
+			"[javascriptreact]": {
+			  "editor.defaultFormatter": "vscode.typescript-language-features"
+			},
+			"editor.suggest.preview": true,
+			"terminal.integrated.cursorBlinking": true,
+			"template-string-converter.validLanguages": [
+			  "svelte",
+			  "typescript",
+			  "javascript",
+			  "typescriptreact",
+			  "javascriptreact",
+			  "html"
+			],
+			"terminal.integrated.defaultProfile.windows": "Command Prompt",
+			"python.analysis.extraPaths": [
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.35773\\out",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.35946\\out",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36197\\out",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36197\\out\\micropython",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36197\\out\\clue",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36197\\out\\base_circuitpython",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36321\\out",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36321\\out\\micropython",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36321\\out\\clue",
+			  "c:\\Users\\nemet\\.vscode\\extensions\\ms-python.devicesimulatorexpress-2020.0.36321\\out\\base_circuitpython"
+			],
+			"terminal.integrated.cursorWidth": 3,
+			"terminal.integrated.enableBell": true,
+			"debug.inlineValues": "auto",
+			"editor.formatOnType": true,
+			//"editor.largeFileOptimizations": false,
+			"[typescriptreact]": {
+			  "editor.defaultFormatter": "vscode.typescript-language-features"
+			},
+			"javascript.updateImportsOnFileMove.enabled": "prompt",
+			// suggestions
+			"editor.snippetSuggestions": "inline",
+			"editor.wordBasedSuggestions": "off",
+			"javascript.suggest.names": false,
+			"editor.emmet.action.updateTag": true,
+			"explorer.confirmDelete": false,
+			"vscode-edge-devtools.mirrorEdits": true,
+			"vscode-edge-devtools.themes": "Dark",
+			"template-string-converter.autoRemoveTemplateString": true,
+			"editor.bracketPairColorization.enabled": true,
+			"editor.guides.bracketPairs": "active",
+			"redhat.telemetry.enabled": false,
+			//arduino output
+			"output.smartScroll.enabled": false,
+			// smooth:
+			"editor.smoothScrolling": true,
+			"editor.cursorSmoothCaretAnimation": "on",
+			"editor.cursorBlinking": "phase",
+			"workbench.list.smoothScrolling": true,
+			// UI
+			"workbench.layoutControl.type": "both",
+			"terminal.integrated.shellIntegration.enabled": true,
+			// change this
+			"editor.inlineSuggest.enabled": true,
+			"github.copilot.enable": {
+			  "*": true,
+			  "plaintext": false,
+			  "markdown": true,
+			  "scminput": false,
+			  "yaml": true,
+			  "typescriptreact": true
+			},
+			"remote.SSH.remotePlatform": {
+			  "192.168.0.95": "linux",
+			  "raspberrypi.local": "linux",
+			  "gateway.binibeno.hu": "linux",
+			  "robotarm.local": "linux"
+			},
+			"template-string-converter.enabled": true,
+			"template-string-converter.quoteType": "both",
+			"template-string-converter.addBracketsToProps": true,
+			"arduino.enableUSBDetection": true,
+			"arduino.defaultBaudRate": 9600,
+			"cmake.configureOnOpen": false,
+			"[xml]": {
+			  "editor.defaultFormatter": "redhat.vscode-xml",
+			  "editor.formatOnSave": false,
+			  "editor.formatOnType": false
+			},
+			"workbench.iconTheme": "material-icon-theme",
+			"security.workspace.trust.untrustedFiles": "open",
+			"dart.debugExternalPackageLibraries": false,
+		  
+			"window.experimental.commandCenter": false,
+			"npm.keybindingsChangedWarningShown": true,
+			"emmet.inlineCompletions": true,
+			"indentRainbow.indicatorStyle": "light",
+			"indentRainbow.updateDelay": 300,
+			"indentRainbow.indentSetter": {},
+			"editor.detectIndentation": true,
+			"editor.insertSpaces": true,
+			"editor.tabSize": 2,
+			"terminal.integrated.cursorStyle": "line",
+			"window.confirmBeforeClose": "always",
+			"task.reconnection": true,
+			"editor.stickyScroll.enabled": true,
+			"workbench.experimental.settingsProfiles.enabled": true,
+			"editor.accessibilitySupport": "off",
+			"editor.linkedEditing": true,
+			"terminal.integrated.enableMultiLinePasteWarning": false,
+			// "arduino.commandPath": "arduino-cli.exe",
+			"template-string-converter.enable": true,
+			"arduino.useArduinoCli": true,
+			"editor.inlineSuggest.showToolbar": "always",
+			"git.confirmSync": false,
+			"editor.minimap.renderCharacters": false,
+			"errorLens.excludeBySource": [
+			  "C/C++(1696)"
+			],
+			"[markdown]": {
+			  // "editor.defaultFormatter": "esbenp.prettier-vscode",
+			  "cSpell.showAutocompleteSuggestions": true
+			  // "cSpell.files": null
+			},
+		  
+			"cSpell.enabledLanguageIds": [
+			  "asciidoc",
+			  "c",
+			  "cpp",
+			  "css",
+			  "git-commit",
+			  // "graphql",
+			  // "html",
+			  // "json",
+			  // "jsonc",
+			  "less",
+			  "markdown",
+			  "plaintext",
+			  "restructuredtext",
+			  "text",
+			  "yaml",
+			  "yml"
+			],
+			"cSpell.ignorePaths": [
+			  "package-lock.json",
+			  "node_modules",
+			  "vscode-extension",
+			  ".git/objects",
+			  ".vscode",
+			  ".vscode-insiders",
+			  "*.hu.md"
+			],
+			"cSpell.experimental.enableSettingsViewerV2": true,
+			"spellright.documentTypes": ["markdown", "latex", "plaintext"],
+			"spellright.notificationClass": "information",
+			"workbench.settings.applyToAllProfiles": [
+			  "editor.formatOnSave"
+			],
+			"editor.formatOnSaveMode": "modifications",
+			"workbench.editor.empty.hint": "hidden",
+			"[python]": {
+			  "editor.defaultFormatter": "ms-python.black-formatter"
+			},
+			"python.formatting.provider": "none",
+			"workbench.colorTheme": "Material Theme High Contrast",
+			"Lua.diagnostics.enable": false,
+			"Lua.workspace.library": [
+			  "C:\\Users\\nemet\\AppData\\Roaming\\sm.lua"
+			],
+			"[lua]": {
+			  "editor.formatOnType": true
+			},
+			"terminal.integrated.stickyScroll.enabled": true,
+			"workbench.tree.enableStickyScroll": true,
+			"python.analysis.autoImportCompletions": true
+		  
+	},
+	"extensions": {
+		"recommendations": [
+			"PKief.material-icon-theme",
+			"Equinusocio.vsc-material-theme",
+			"GitHub.copilot",
+			"GitHub.copilot-chat",
+			"ms-python.python",
+			"ms-python.vscode-pylance",
+			"usernamehw.errorlens",
+			"aaron-bond.better-comments",
+			"ms-vscode.remote-server"
+		]
+	}
 }

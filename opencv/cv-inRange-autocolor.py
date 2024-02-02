@@ -7,6 +7,26 @@ import time
 from picamera2 import Picamera2, Preview,MappedArray
 
 import os
+import serialapi
+
+
+import sys
+
+def get_base_prefix_compat():
+    """Get base/real prefix, or sys.prefix if there is none."""
+    return (
+        getattr(sys, "base_prefix", None)
+        or getattr(sys, "real_prefix", None)
+        or sys.prefix
+    )
+
+def in_virtualenv():
+    return sys.prefix != get_base_prefix_compat()
+
+if (not in_virtualenv()):
+    print("Not in the virtual environment (virtualenv). See start.sh. Run source ~/mp/bin/activate from bash to active the virtual environment.")
+    sys.exit()
+
 # fix camera on ssh 
 os.environ["DISPLAY"] = ":0"
 
@@ -19,6 +39,8 @@ picam2.start()
 camHeight = 600
 camWidth = 800
 
+print("Starting serial communcation")
+ser = serialapi.init_serial()
 
 max_value = 255
 max_value_H = 360//2
@@ -274,18 +296,20 @@ def current_milli_time():
 def moveArmTimer(mask, img):
     global lastTime
     # move arm every 500 ms
-    throttle = 500
-    if (current_milli_time() - lastTime > throttle) or True:
+    throttle = 200
+    doMove = False
+    if (current_milli_time() - lastTime > throttle) :
         lastTime = current_milli_time()
-        return moveArm(mask, img)
-
+        doMove = True
+    
+    return moveArm(mask, img,doMove )
 
 
 
 def map_range(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
-def moveArm(mask, img): 
+def moveArm(mask, img, doMove): 
     tempImage = img
     #TODO: optimize, this runs findContours twice
       # Find contours in the mask
@@ -336,16 +360,41 @@ def moveArm(mask, img):
 
     localX = map_range(x_avg, baselineLeft[0], baselineRight[0], -100, 100)
     # TODO: this only works if the baseline is parallel to the x axis
-    localY = map_range(y_avg, baselineLeft[1], baselineRadius, -100, 100)
+    # print("CHECK THIS THE PROBLEM IS HERE HOW IT MAPS")
+    localY = map_range(y_avg, baselineLeft[1], baselineRadius, 0, 100)
 
-    print("Object in local coordinate system", localX, localY)
+    # print("Object in local coordinate system", localX, localY)
     # (-100 to 100)
     
+    # theta is the angle 
+    (r, theta_original) =serialapi.descartesToPolar(localX, localY)
 
+    
+    # positive range (from 0 to 180)
+    new_theta = theta_original + 90
+
+    final_theta = new_theta
+
+    if new_theta >= 360:
+        final_theta = new_theta - 360
+
+    elif (new_theta < 0):
+        final_theta = new_theta + 360
+
+    else:
+        final_theta = new_theta
+    
+    radius = r
+    print(int(final_theta))
+    if (doMove):
+        serialapi.moveMotor(ser, 0, int(final_theta))
+        serialapi.updateMotor(ser)
+        time.sleep(0.001)
     return tempImage
 
 
-
+# config save loader
+# multithread
 while True:
     cap = picam2.capture_array()
     frame = cap

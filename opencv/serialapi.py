@@ -1,8 +1,34 @@
 import serial
 import serial.tools.list_ports
 import time
+
+import math
+
+def descartesToPolar(x, y):
+    r = math.sqrt(x ** 2 + y ** 2)  # radius
+    theta = (-math.atan2(y, x) * 180 / math.pi) + 90  # angle in degrees, adjusted by +90 degrees
+
+    if theta < 0:
+        theta += 360  # adjust negative angles to the range of 0 to 360
+
+    return [r, theta]
+
+def updateMotor(ser):
+    ser.write(b"u\r\n")
+
+
 def sysprint(a):
     print('\033[92m' + "SYS: " +'\033[0m' + str(a))
+
+def moveMotor(ser, index, pos):
+    # ! WARNING: NO SAFETY!
+    pad_rot = str(pos).rjust(3, "0")
+    sysprint(pad_rot)
+    command = "m" + str(index) + pad_rot + "\r\n"
+    bytes = str.encode(command)
+    ser.write(bytes)
+    time.sleep(0.001)
+
 
 def init_serial():
     ports = [comport.device for comport in serial.tools.list_ports.comports()]

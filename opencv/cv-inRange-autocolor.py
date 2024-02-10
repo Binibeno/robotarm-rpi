@@ -162,7 +162,7 @@ def on_colorTolerance_trackbar(val):
 cv.createTrackbar("Baseline Y", window_detection_name , conf["baselineY"], camHeight, lambda val: setConf("baselineY", val))
 cv.createTrackbar("Baseline Left X", window_detection_name , conf["baselineLeftX"], camWidth, lambda val: setConf("baselineLeftX", val))
 cv.createTrackbar("Baseline Right X", window_detection_name , conf["baselineRightX"], camWidth, lambda val: setConf("baselineRightX", val))
-cv.createTrackbar("Color Tolerance", window_detection_name , 10, 70, on_colorTolerance_trackbar)
+cv.createTrackbar("Color Tolerance", window_detection_name , conf["colorTolerance"], 70, on_colorTolerance_trackbar)
 cv.createTrackbar("Baseline Radius", window_detection_name , conf["baselineRadius"], camWidth, lambda val: setConf("baselineRadius", val))
 
 def click_event( event, x, y, flags, params): 
@@ -251,8 +251,11 @@ def serialThread(in_q, ser):
         serialapi.updateMotor(ser)
         time.sleep(0.001)
 
+        # map radius (0 to 100)
+        # to real units (14.5cm to 43.5cm)
+        mappedRadius = map_range(r, 0, 100, 0, serialapi.radiusMax)
         # move to radius
-        serialapi.armToCM(ser, r)
+        serialapi.armToCM(ser, mappedRadius, False)
         time.sleep(0.001)
 
 

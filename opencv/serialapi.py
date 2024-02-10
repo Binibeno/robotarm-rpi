@@ -81,13 +81,20 @@ def init_serial():
     return ser
 
 
+radiusMin = 14.5; #14,5 cm
+radiusMax = 43.5; #43,5 cm
 
-def armToCM(ser, cmx):
+def armToCM(ser, cmx, reverse):
 
     radius = cmx
 
-    radiusMin = 14.5; #14,5 cm
-    radiusMax = 43.5; #43,5 cm
+    # limit with in range
+    if (radius < radiusMin):
+        radius = radiusMin
+
+    if (radius > radiusMax):
+        radius = radiusMax
+
     aMin = 90; # if a=90-70=20 then b=90+70=160 
     aMax = 20; # m1 fully extended
 
@@ -106,9 +113,13 @@ def armToCM(ser, cmx):
     a = calcAfromB(b);
 
 
+    print("RADIUS: ", radius)
+    print("M1: ", a)
+    print("M2: ", b)
+    print("M3: ", b)
 
-    moveMotor(ser, 2, b)
     moveMotor(ser, 1, a)
+    moveMotor(ser, 2, b)
     moveMotor(ser, 3, b) 
     # if motor 4 would be at a different place it would be set to a
 

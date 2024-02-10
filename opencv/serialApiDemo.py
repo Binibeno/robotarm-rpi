@@ -24,5 +24,14 @@ r = 43.5
 
 
 # move to radius
-serialapi.armToCM(ser, r, False)
-time.sleep(0.001)
+# serialapi.armToCM(ser, r, False)
+# time.sleep(0.001)
+
+serialapi.moveMotor(ser, 5, 73)
+serialapi.updateMotor(ser)
+
+time.sleep(1)
+
+
+serialapi.moveMotor(ser, 5, 10)
+serialapi.updateMotor(ser)

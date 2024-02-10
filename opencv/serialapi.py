@@ -22,6 +22,7 @@ def sysprint(a):
 
 def moveMotor(ser, index, pos):
     # ! WARNING: NO SAFETY!
+    # ! WARNING: updateMotor() must be called after this function to update the motors
     pad_rot = str(pos).rjust(3, "0")
     # sysprint(pad_rot)
     command = "m" + str(index) + pad_rot + "\r\n"
@@ -125,3 +126,29 @@ def armToCM(ser, cmx, reverse):
 
     ser.write(b"u\r\n")
     time.sleep(0.001)
+
+
+def calcToCM(ser, cmx, reverse):
+    radius = cmx
+    # limit with in range
+    if (radius < radiusMin):
+        radius = radiusMin
+    if (radius > radiusMax):
+        radius = radiusMax
+    aMin = 90; # if a=90-70=20 then b=90+70=160 
+    aMax = 20; # m1 fully extended
+    # m2
+    bMin = 0; #   fully retracted
+    bMax = 70; # fully extended
+    # m3
+    cMin = 0; #   fully retracted
+    cMax = 70; # fully extended
+
+    b = map_range(radius, radiusMin, radiusMax, bMin, bMax);
+    def calcAfromB(b):
+        return 90 - b; 
+
+    a = calcAfromB(b);
+
+    # where, M1, M2, M3 are the angles of the motors
+    return (a, b, b)

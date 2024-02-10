@@ -217,7 +217,7 @@ def drawBaseline(frame):
     baselineLeft = (conf["baselineLeftX"], conf["baselineY"])
     baselineRight = (conf["baselineRightX"], conf["baselineY"])
 
-    tempImg = cv.line(frame, baselineLeft, baselineRight, (0, 255, 0), 2)
+    tempImg = frame
     # calculate the center of the the baselines's x values
     center = (baselineLeft[0] + baselineRight[0]) // 2
     # draw a dot at the center of the baseline
@@ -232,6 +232,10 @@ def drawBaseline(frame):
     radiusSize = (camHeight - conf["baselineRadius"]) - (camHeight - baseY)
     # draw coordinate system limits
     tempImg = cv.line(tempImg, (center -  radiusSize, baseY), (center +  radiusSize, baseY), (255, 255, 0), 2)
+
+
+
+    tempImg = cv.line(tempImg, baselineLeft, baselineRight, (0, 255, 0), 2)
     return tempImg
 
 lastTime = 0
@@ -250,10 +254,20 @@ def serialThread(in_q, ser):
         # Get some data 
         data = in_q.get()
 
-        r, theta = data
+        r, theta, fromTop = data
         # print("R", r)
         # print("Theta", theta)
 
+        if (fromTop):
+            serialapi.moveMotor(ser, 1, 90)
+            serialapi.moveMotor(ser, 2, 40)
+            serialapi.moveMotor(ser, 3, 70)
+            serialapi.moveMotor(ser, 4, 90)
+            serialapi.moveMotor(ser, 5, 10)
+            serialapi.updateMotor(ser)
+            # wait 300 ms to move
+            time.sleep(0.3)
+            
         # move to theta
         serialapi.moveMotor(ser, 0, int(theta))
         serialapi.updateMotor(ser)
@@ -266,6 +280,44 @@ def serialThread(in_q, ser):
         serialapi.armToCM(ser, mappedRadius, False)
         time.sleep(0.001)
 
+        if (fromTop):
+                time.sleep(3)
+
+                # where, M1, M2, M3 are the angles of the motors
+                M1, M2, M3 = serialapi.calcToCM(ser, mappedRadius, False)
+
+
+                # lift the arm a bit   
+                serialapi.moveMotor(ser, 1, M1 + 6)
+                serialapi.updateMotor(ser)
+                time.sleep(0.5)
+
+
+                # move a bit to left
+                serialapi.moveMotor(ser, 4, 70)
+                serialapi.moveMotor(ser, 0, max(int(theta) - 8, 0))
+                serialapi.updateMotor(ser)
+                time.sleep(1.5)
+
+
+                # serialapi.moveMotor(ser, 4, 120)
+                # serialapi.moveMotor(ser, 0, min(int(theta) + 8, 360))
+                # serialapi.updateMotor(ser)
+                # time.sleep(1.5)
+
+
+                # reset to normal
+                serialapi.moveMotor(ser, 4, 90)
+                serialapi.moveMotor(ser, 1, M1 -3)
+                serialapi.moveMotor(ser, 3, M3 -7)
+                serialapi.updateMotor(ser)
+                time.sleep(0.5)
+
+
+
+                # serialapi.moveMotor(ser, 5, 70)
+                # serialapi.updateMotor(ser)
+
 
     
 
@@ -274,15 +326,51 @@ t1 = Thread(target = serialThread, args =(q, ser ))
 t1.start()
 
 
+def moveFromTop(*args):
+    print("User input to move arm!")
+    global shouldMove
+    shouldMove = True
+
+def calibrateArm(*args):
+    global q
+    # r, theta, animate
+    q.put((100, 90, False))
+
+def grab(*args):
+    # max close: 73
+    #  min open:10
+    serialapi.moveMotor(ser, 5, 70)
+    serialapi.updateMotor(ser)
+def lifthand(*args):
+    # max close: 73
+    #  min open:10
+    serialapi.moveMotor(ser, 1, 60)
+    serialapi.moveMotor(ser, 2, 55)
+    serialapi.moveMotor(ser, 3, 40)
+    serialapi.updateMotor(ser)
+
+
+print("To move the arm press ctrl+p to open up the settings pane, and press moveArm")
+
+cv.createButton("Grab object",moveFromTop,None,cv.QT_PUSH_BUTTON,1)
+cv.createButton("Calibrate arm (move to max reach)",calibrateArm,None,cv.QT_PUSH_BUTTON,1)
+cv.createButton("Close hand",grab,None,cv.QT_PUSH_BUTTON,1)
+cv.createButton("Lift hand",lifthand,None,cv.QT_PUSH_BUTTON,1)
+
+shouldMove = False 
 
 def moveArmTimer(mask, img):
-    global lastTime
+    global lastTime, shouldMove
     # move arm every 500 ms
     throttle = 200
     doMove = False
-    if (current_milli_time() - lastTime > throttle) :
-        lastTime = current_milli_time()
+    # if (current_milli_time() - lastTime > throttle) :
+        # lastTime = current_milli_time()
+        # doMove = True
+    
+    if (shouldMove) :
         doMove = True
+        shouldMove = False
     
     return moveArm(mask, img,doMove )
 
@@ -385,7 +473,7 @@ def moveArm(mask, img, doMove):
         final_theta = new_theta
     # print(int(final_theta))
     if (doMove):
-        q.put((r, final_theta))
+        q.put((r, final_theta, True))
 
     return tempImage
 

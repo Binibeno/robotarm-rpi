@@ -77,7 +77,7 @@ conf = Merge(default_config, loadConfig())
 print("Starting with config:", conf)
 
 def setConf(key, value):
-    print("UPDATING", key, value)
+    # print("UPDATING", key, value)
     global conf
     conf[key] = value
 
@@ -123,8 +123,8 @@ trackBarConf = {
     high_H_name: "high_H",
     low_S_name: "low_S",
     high_S_name: "high_S",
-    low_V_name: "low_V",
     high_V_name: "high_V",
+    low_V_name: "low_V",
 
 }
 
@@ -137,34 +137,32 @@ def updateTrackbars():
 cv.namedWindow(window_capture_name)
 cv.namedWindow(window_detection_name)
 
-def setTrack(barName,confName,  value):
-    setConf(confName, value)
-    cv.setTrackbarPos(barName, window_detection_name, value)
-
+def updater(confName):
+    def updateConf(val):
+        setConf(confName, val)
+        updateTrackbars()
+        return 0
+     
+    return updateConf
 
 # loop through the trackbars and run createTrackbar
 for barName, confName in trackBarConf.items():
-    cv.createTrackbar(barName, window_detection_name , conf[confName], max_value, lambda val: setTrack(barName, confName, val))
-
+    # ! CLOUSER WARNING
+    #! see: https://www.programiz.com/python-programming/closure#:~:text=When%20to%20use%20closures%3F
+    cv.createTrackbar(barName, window_detection_name , conf[confName], max_value, updater(confName))
 
 def on_colorTolerance_trackbar(val):
-    global colorTolerance 
-    colorTolerance  = val
-    cv.setTrackbarPos("Color Tolerance", window_detection_name, val)    
+    setConf("colorTolerance", val)
     # set to current range
     calcTolerance(conf["h"], conf["s"], conf["v"])
     # update with correct values
     updateTrackbars()
-
-
 
 # names are used to reference the trackbars, be careful when updating
 cv.createTrackbar("Baseline Y", window_detection_name , conf["baselineY"], camHeight, lambda val: setConf("baselineY", val))
 cv.createTrackbar("Baseline Left X", window_detection_name , conf["baselineLeftX"], camWidth, lambda val: setConf("baselineLeftX", val))
 cv.createTrackbar("Baseline Right X", window_detection_name , conf["baselineRightX"], camWidth, lambda val: setConf("baselineRightX", val))
 cv.createTrackbar("Color Tolerance", window_detection_name , 10, 70, on_colorTolerance_trackbar)
-cv.createTrackbar("Color Tolerance", window_detection_name , 10, 70, on_colorTolerance_trackbar)
-
 cv.createTrackbar("Baseline Radius", window_detection_name , conf["baselineRadius"], camWidth, lambda val: setConf("baselineRadius", val))
 
 def click_event( event, x, y, flags, params): 
@@ -218,6 +216,7 @@ def drawBaseline(frame):
     global conf
     baselineLeft = (conf["baselineLeftX"], conf["baselineY"])
     baselineRight = (conf["baselineRightX"], conf["baselineY"])
+
     tempImg = cv.line(frame, baselineLeft, baselineRight, (0, 255, 0), 2)
     # calculate the center of the the baselines's x values
     center = (baselineLeft[0] + baselineRight[0]) // 2
@@ -289,7 +288,7 @@ def moveArm(mask, img, doMove):
     contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
     if not contours:
-        print("No contours found. Click to select a color to sample it. Adjust tolerance using slider. ")
+        # print("No contours found. Click to select a color to sample it. Adjust tolerance using slider. ")
         return tempImage
     
     top_left = [camWidth,camHeight]

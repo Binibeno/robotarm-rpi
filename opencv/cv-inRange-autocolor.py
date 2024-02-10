@@ -2,25 +2,24 @@
 
 from __future__ import print_function
 import cv2 as cv
-import argparse
 import time
 from picamera2 import Picamera2, Preview,MappedArray
-
 import os
 import serialapi
-
-
 import sys
-
-def get_base_prefix_compat():
-    """Get base/real prefix, or sys.prefix if there is none."""
-    return (
-        getattr(sys, "base_prefix", None)
-        or getattr(sys, "real_prefix", None)
-        or sys.prefix
-    )
+from staticvar import *
+from queue import Queue 
+from threading import Thread 
+import json
 
 def in_virtualenv():
+    def get_base_prefix_compat():
+        """Get base/real prefix, or sys.prefix if there is none."""
+        return (
+            getattr(sys, "base_prefix", None)
+            or getattr(sys, "real_prefix", None)
+            or sys.prefix
+        )
     return sys.prefix != get_base_prefix_compat()
 
 if (not in_virtualenv()):
@@ -31,6 +30,7 @@ if (not in_virtualenv()):
 os.environ["DISPLAY"] = ":0"
 
 picam2 = Picamera2()
+
 # bgr
 preview_config = picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (800 , 600 )})
 picam2.configure(preview_config)
@@ -42,185 +42,133 @@ camWidth = 800
 print("Starting serial communcation")
 ser = serialapi.init_serial()
 
-max_value = 255
-max_value_H = 360//2
-low_H = 0
-low_S = 0
-low_V = 0
-high_H = max_value_H
-high_S = max_value
-high_V = max_value
-window_capture_name = 'Video Capture'
-window_detection_name = 'Object Detection (mask)'
-low_H_name = 'Low H'
-low_S_name = 'Low S'
-low_V_name = 'Low V'
-high_H_name = 'High H'
-high_S_name = 'High S'
-high_V_name = 'High V'
 
-colorTolerance =10 
+default_config = {
+    "low_H": 0,
+    "high_H": max_value_H,
+    "low_S": 0,
+    "high_S": max_value,
+    "low_V": 0,
+    "high_V": max_value,
+    "colorTolerance": 10,
+    "h": 0,
+    "s":0,
+    "v":0,
+    "baselineY": 517,
+    "baselineRadius": 60,
+    "baselineLeftX": 337,
+    "baselineRightX":722
+}
 
-#  used when recalcualting errorFromColor
-h, s, v = 0, 0, 0
-def errorFromColor(H, S, V):
-    global h, s, v
-    h = H
-    s = S
-    v = V
+# load config from config.json
+def loadConfig():
+    with open('config.json') as f:
+        data = json.load(f)
+        return data
 
-    # low_H should be: H - 10
-    # high_H should be: H + 10
-
-    global low_H, high_H, low_S, high_S, low_V, high_V, colorTolerance
-
-    # tolerance 
-    t = colorTolerance
-    low_H = int(max(0, min(255, H - t)))
-    high_H = int(max(0, min(255, H+t)))
-    low_S = int(max(0, min(255, S-t)))
-    high_S = int(max(0, min(255, S+t)))
-    low_V = int(max(0, min(255, V-t)))
-    high_V = int(max(0, min(255, V+t)))
+# Python code to merge dict using a single 
+# expression
+def Merge(dict1, dict2):
+    res = dict1 | dict2
+    return res
 
 
+conf = Merge(default_config, loadConfig())
+print("Starting with config:", conf)
 
-def updateTrackbars():
-    cv.setTrackbarPos(low_H_name, window_detection_name, low_H)
-    cv.setTrackbarPos(high_H_name, window_detection_name, high_H)
-    cv.setTrackbarPos(low_S_name, window_detection_name, low_S)
-    cv.setTrackbarPos(high_S_name, window_detection_name, high_S)
-    cv.setTrackbarPos(low_V_name, window_detection_name, low_V)
-    cv.setTrackbarPos(high_V_name, window_detection_name, high_V)
-    cv.setTrackbarPos("Color Tolerance", window_detection_name, colorTolerance)
+def setConf(key, value):
+    print("UPDATING", key, value)
+    global conf
+    conf[key] = value
 
-
-# forked from: https://docs.opencv.org/3.4/da/d97/tutorial_threshold_inRange.html
-
-def on_low_H_thresh_trackbar(val):
-    global low_H
-    global high_H
-    low_H = val
-    low_H = min(high_H-1, low_H)
-    cv.setTrackbarPos(low_H_name, window_detection_name, low_H)
-def on_high_H_thresh_trackbar(val):
-    global low_H
-    global high_H
-    high_H = val
-    high_H = max(high_H, low_H+1)
-    cv.setTrackbarPos(high_H_name, window_detection_name, high_H)
-def on_low_S_thresh_trackbar(val):
-    global low_S
-    global high_S
-    low_S = val
-    low_S = min(high_S-1, low_S)
-    cv.setTrackbarPos(low_S_name, window_detection_name, low_S)
-def on_high_S_thresh_trackbar(val):
-    global low_S
-    global high_S
-    high_S = val
-    high_S = max(high_S, low_S+1)
-    cv.setTrackbarPos(high_S_name, window_detection_name, high_S)
-def on_low_V_thresh_trackbar(val):
-    global low_V
-    global high_V
-    low_V = val
-    low_V = min(high_V-1, low_V)
-    cv.setTrackbarPos(low_V_name, window_detection_name, low_V)
-def on_high_V_thresh_trackbar(val):
-    global low_V
-    global high_V
-    high_V = val
-    high_V = max(high_V, low_V+1)
-    cv.setTrackbarPos(high_V_name, window_detection_name, high_V)
-
-
-
+    with open('config.json', 'w') as f:
+        json.dump(conf, f)
 
 # baseline start
-baselineLeft = (337, 517)
-baselineRight = (722, 517)
-baselineRadius = 60
+# x, y
+# baselineLeft = (337, 517)
+# baselineRight = (722, 517)
+# baselineRadius = 60
 # used for detecting the center dot for the robot arm
 
 #! important: y should be the same, try to make this line parallel align with the pencil line on the robots base
 # !TODO: use auto color detectiong for this in the future
 
 
-def on_baselineLeft_trackbar(val):
-    global baselineLeft
-    baselineLeft = (val, baselineLeft[1])
-    cv.setTrackbarPos("Baseline Left X", window_detection_name, val)
+# colorTolerance = 10 
 
-# baselineRight_trackbar
-def on_baselineRight_trackbar(val):
-    global baselineRight
-    baselineRight = (val, baselineRight[1])
-    cv.setTrackbarPos("Baseline Right X", window_detection_name, val)
+#  used when recalcualting errorFromColor
+# h, s, v = 0, 0, 0
 
-# set y values for both baselines
-def on_baselineY_trackbar(val):
-    global baselineLeft
-    global baselineRight
-    baselineLeft = (baselineLeft[0], val)
-    baselineRight = (baselineRight[0], val)
-    cv.setTrackbarPos("Baseline Y", window_detection_name, val)
-# baselineRadius_trackbar
-def on_baselineRadius_trackbar(val):
-    global baselineRadius
-    baselineRadius = val
-    cv.setTrackbarPos("Baseline Radius", window_detection_name, val)
+def calcTolerance(H, S, V):
+    setConf("h", H)
+    setConf("s", S)
+    setConf("v", V)
+    global conf
 
-def on_colorTolerance_trackbar(val):
-    global colorTolerance 
+    # tolerance 
+    t = conf["colorTolerance"]
+    setConf("low_H", int(max(0, min(255, H - t))))
+    setConf("high_H", int(max(0, min(255, H + t))))
+    setConf("low_S", int(max(0, min(255, S - t))))
+    setConf("high_S", int(max(0, min(255, S + t))))
+    setConf("low_V", int(max(0, min(255, V - t))))
+    setConf("high_V", int(max(0, min(255, V + t))))
 
-    colorTolerance  = val
-    cv.setTrackbarPos("Color Tolerance", window_detection_name, val)
 
-    
-    # set to current range
-    errorFromColor(h, s, v)
-    # update with correct values
-    updateTrackbars()
+# ----------------- TRACKBARS ----------------
+# name to confname mapping
+trackBarConf = {
+    "Low H": "low_H",
+    high_H_name: "high_H",
+    low_S_name: "low_S",
+    high_S_name: "high_S",
+    low_V_name: "low_V",
+    high_V_name: "high_V",
+
+}
+
+def updateTrackbars():
+    global conf
+    for barName, confName in trackBarConf.items():
+        cv.setTrackbarPos(barName, window_detection_name, conf[confName])
+
 
 cv.namedWindow(window_capture_name)
 cv.namedWindow(window_detection_name)
-cv.createTrackbar(low_H_name, window_detection_name , low_H, max_value_H, on_low_H_thresh_trackbar)
-cv.createTrackbar(high_H_name, window_detection_name , high_H, max_value_H, on_high_H_thresh_trackbar)
-cv.createTrackbar(low_S_name, window_detection_name , low_S, max_value, on_low_S_thresh_trackbar)
-cv.createTrackbar(high_S_name, window_detection_name , high_S, max_value, on_high_S_thresh_trackbar)
-cv.createTrackbar(low_V_name, window_detection_name , low_V, max_value, on_low_V_thresh_trackbar)
-cv.createTrackbar(high_V_name, window_detection_name , high_V, max_value, on_high_V_thresh_trackbar)
+
+def setTrack(barName,confName,  value):
+    setConf(confName, value)
+    cv.setTrackbarPos(barName, window_detection_name, value)
+
+
+# loop through the trackbars and run createTrackbar
+for barName, confName in trackBarConf.items():
+    cv.createTrackbar(barName, window_detection_name , conf[confName], max_value, lambda val: setTrack(barName, confName, val))
+
+
+def on_colorTolerance_trackbar(val):
+    global colorTolerance 
+    colorTolerance  = val
+    cv.setTrackbarPos("Color Tolerance", window_detection_name, val)    
+    # set to current range
+    calcTolerance(conf["h"], conf["s"], conf["v"])
+    # update with correct values
+    updateTrackbars()
 
 
 
 # names are used to reference the trackbars, be careful when updating
-cv.createTrackbar("Baseline Y", window_detection_name , baselineLeft[1], camHeight, on_baselineY_trackbar)
-cv.createTrackbar("Baseline Left X", window_detection_name , baselineLeft[0], camWidth, on_baselineLeft_trackbar)
-cv.createTrackbar("Baseline Right X", window_detection_name , baselineRight[0], camWidth, on_baselineRight_trackbar)
-cv.createTrackbar("Baseline Radius", window_detection_name , baselineRadius, camWidth, on_baselineRadius_trackbar)
-
+cv.createTrackbar("Baseline Y", window_detection_name , conf["baselineY"], camHeight, lambda val: setConf("baselineY", val))
+cv.createTrackbar("Baseline Left X", window_detection_name , conf["baselineLeftX"], camWidth, lambda val: setConf("baselineLeftX", val))
+cv.createTrackbar("Baseline Right X", window_detection_name , conf["baselineRightX"], camWidth, lambda val: setConf("baselineRightX", val))
+cv.createTrackbar("Color Tolerance", window_detection_name , 10, 70, on_colorTolerance_trackbar)
 cv.createTrackbar("Color Tolerance", window_detection_name , 10, 70, on_colorTolerance_trackbar)
 
-
-# like used in google color picker
-def hsv_to_standard(h, s, v):
-    # Ensure input values are within the valid range
-    h = max(0, min(255, h))
-    s = max(0, min(255, s))
-    v = max(0, min(255, v))
-
-    # Convert H, S, V to the standard range
-    h_standard = (h / 255) * 360
-    s_standard = (s / 255) * 100
-    v_standard = (v / 255) * 100
-
-    return h_standard, s_standard, v_standard
-
-
+cv.createTrackbar("Baseline Radius", window_detection_name , conf["baselineRadius"], camWidth, lambda val: setConf("baselineRadius", val))
 
 def click_event( event, x, y, flags, params): 
-    img = cap
+    img = frame
 
     # checking for left mouse clicks 
     if event == cv.EVENT_LBUTTONDOWN: 
@@ -249,49 +197,73 @@ def click_event( event, x, y, flags, params):
         # you can double check this using the google color picker!
 
         # set to current range
-        errorFromColor(h, s, v)
+        calcTolerance(int(h), int(s), int(v))
         # update with correct values
         updateTrackbars()
 
 
 def drawBox(mask, img):
-      # Find contours in the mask
+    # Find contours in the mask
     contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-
     tempImage = img
     for cont in contours:
-    # if contours:
-      # for every contour
-        # Get the bounding box of the first contour
         x, y, w, h = cv.boundingRect(cont)
-
         top_left = (x, y)
         bottom_right = (x + w, y + h)
-
-        #print("Top left coordinate:", top_left)
-        #print("Bottom right coordinate:", bottom_right)
-
-        # Draw the bounding box on the original image (optional)
         cv.rectangle(tempImage, top_left, bottom_right, (0, 255, 0), 2)
 
     return tempImage 
 
-
-
-
 def drawBaseline(frame):
+    global conf
+    baselineLeft = (conf["baselineLeftX"], conf["baselineY"])
+    baselineRight = (conf["baselineRightX"], conf["baselineY"])
     tempImg = cv.line(frame, baselineLeft, baselineRight, (0, 255, 0), 2)
     # calculate the center of the the baselines's x values
     center = (baselineLeft[0] + baselineRight[0]) // 2
     # draw a dot at the center of the baseline
     tempImg = cv.circle(tempImg, (center, baselineLeft[1]), 5, (0, 255, 0), -1)
     # draw a line from the baseline's center to the top of the screen
-    tempImg = cv.line(tempImg, (center, baselineLeft[1]), (center, baselineRadius), (0, 255, 0), 2)
+    tempImg = cv.line(tempImg, (center, baselineLeft[1]), (center, conf["baselineRadius"]), (0, 255, 0), 2)
     return tempImg
 
 lastTime = 0
 def current_milli_time():
     return round(time.time() * 1000)
+
+
+# this runs in an another thread
+# to move arm:
+# q.put((r, theta)) 
+# radius: [distance from arm]
+# theta: [angle from the center of the arm]
+def serialThread(in_q, ser):
+    
+    while True: 
+        # Get some data 
+        data = in_q.get()
+
+        r, theta = data
+        # print("R", r)
+        # print("Theta", theta)
+
+        # move to theta
+        serialapi.moveMotor(ser, 0, int(theta))
+        serialapi.updateMotor(ser)
+        time.sleep(0.001)
+
+        # move to radius
+        serialapi.armToCM(ser, r)
+        time.sleep(0.001)
+
+
+    
+
+q = Queue()
+t1 = Thread(target = serialThread, args =(q, ser )) 
+t1.start()
+
+
 
 def moveArmTimer(mask, img):
     global lastTime
@@ -306,10 +278,11 @@ def moveArmTimer(mask, img):
 
 
 
-def map_range(x, in_min, in_max, out_min, out_max):
-    return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
-
 def moveArm(mask, img, doMove): 
+    global conf
+    baselineLeft = (conf["baselineLeftX"], conf["baselineY"])
+    baselineRight = (conf["baselineRightX"], conf["baselineY"])
+
     tempImage = img
     #TODO: optimize, this runs findContours twice
       # Find contours in the mask
@@ -361,7 +334,7 @@ def moveArm(mask, img, doMove):
     localX = map_range(x_avg, baselineLeft[0], baselineRight[0], -100, 100)
     # TODO: this only works if the baseline is parallel to the x axis
     # print("CHECK THIS THE PROBLEM IS HERE HOW IT MAPS")
-    localY = map_range(y_avg, baselineLeft[1], baselineRadius, 0, 100)
+    localY = map_range(y_avg, baselineLeft[1], conf["baselineRadius"], 0, 100)
 
     # print("Object in local coordinate system", localX, localY)
     # (-100 to 100)
@@ -383,25 +356,25 @@ def moveArm(mask, img, doMove):
 
     else:
         final_theta = new_theta
-    
-    radius = r
-    print(int(final_theta))
+    # print(int(final_theta))
     if (doMove):
-        serialapi.moveMotor(ser, 0, int(final_theta))
-        serialapi.updateMotor(ser)
-        time.sleep(0.001)
+        q.put((r, final_theta))
+
     return tempImage
 
 
-# config save loader
-# multithread
+
 while True:
-    cap = picam2.capture_array()
-    frame = cap
+    # capute this as an array
+    # [y][x]
+        # [0] b
+        # [1] g
+        # [2] r
+    frame = picam2.capture_array()
 
     frame_HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
     #  this creates a mask
-    frame_threshold = cv.inRange(frame_HSV, (low_H, low_S, low_V), (high_H, high_S, high_V))
+    frame_threshold = cv.inRange(frame_HSV, (conf["low_H"], conf["low_S"], conf['low_V']), (conf["high_H"], conf["high_S"], conf["high_V"]))
     
     cv.setMouseCallback(window_capture_name, click_event) 
 
@@ -413,7 +386,6 @@ while True:
     trackBox = moveArmTimer(frame_threshold, withBox)
 
     withBase = drawBaseline(trackBox)
-
 
     
     cv.imshow(window_capture_name, withBase)

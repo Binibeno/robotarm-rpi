@@ -1,7 +1,7 @@
 import serial
 import serial.tools.list_ports
 import time
-
+from staticvar import *
 import math
 
 def descartesToPolar(x, y):
@@ -23,7 +23,7 @@ def sysprint(a):
 def moveMotor(ser, index, pos):
     # ! WARNING: NO SAFETY!
     pad_rot = str(pos).rjust(3, "0")
-    sysprint(pad_rot)
+    # sysprint(pad_rot)
     command = "m" + str(index) + pad_rot + "\r\n"
     bytes = str.encode(command)
     ser.write(bytes)
@@ -80,3 +80,37 @@ def init_serial():
     ser.write(b"u\r\n")
     return ser
 
+
+
+def armToCM(ser, cmx):
+
+    radius = cmx
+
+    radiusMin = 14.5; #14,5 cm
+    radiusMax = 43.5; #43,5 cm
+    aMin = 90; # if a=90-70=20 then b=90+70=160 
+    aMax = 20; # m1 fully extended
+
+    # m2
+    bMin = 0; #   fully retracted
+    bMax = 70; # fully extended
+    # m3
+    cMin = 0; #   fully retracted
+    cMax = 70; # fully extended
+
+
+    b = map_range(radius, radiusMin, radiusMax, bMin, bMax);
+    def calcAfromB(b):
+        return 90 - b; 
+
+    a = calcAfromB(b);
+
+
+
+    moveMotor(ser, 2, b)
+    moveMotor(ser, 1, a)
+    moveMotor(ser, 3, b) 
+    # if motor 4 would be at a different place it would be set to a
+
+    ser.write(b"u\r\n")
+    time.sleep(0.001)

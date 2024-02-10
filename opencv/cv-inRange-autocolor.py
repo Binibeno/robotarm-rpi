@@ -224,6 +224,14 @@ def drawBaseline(frame):
     tempImg = cv.circle(tempImg, (center, baselineLeft[1]), 5, (0, 255, 0), -1)
     # draw a line from the baseline's center to the top of the screen
     tempImg = cv.line(tempImg, (center, baselineLeft[1]), (center, conf["baselineRadius"]), (0, 255, 0), 2)
+
+
+    # !IMPORTANT: BASELINERADIUS STORES THE Y COORDINATE OF THE BASELINE 
+    #  NOT THE SIZE OF THE RADIUS
+    baseY = baselineLeft[1]
+    radiusSize = (camHeight - conf["baselineRadius"]) - (camHeight - baseY)
+    # draw coordinate system limits
+    tempImg = cv.line(tempImg, (center -  radiusSize, baseY), (center +  radiusSize, baseY), (255, 255, 0), 2)
     return tempImg
 
 lastTime = 0
@@ -333,10 +341,27 @@ def moveArm(mask, img, doMove):
     #coordinate system
     #map baselineLeft and baselineRight to local coordinate system
 
-    localX = map_range(x_avg, baselineLeft[0], baselineRight[0], -100, 100)
+    # !IMPORTANT
+    # localX = map_range(x_avg, baselineLeft[0], baselineRight[0], -100, 100)
     # TODO: this only works if the baseline is parallel to the x axis
     # print("CHECK THIS THE PROBLEM IS HERE HOW IT MAPS")
     localY = map_range(y_avg, baselineLeft[1], conf["baselineRadius"], 0, 100)
+
+
+
+    # !IMPORTANT: BASELINERADIUS STORES THE Y COORDINATE OF THE BASELINE 
+    #  NOT THE SIZE OF THE RADIUS
+    baseY = baselineLeft[1]
+    radiusSize = (camHeight - conf["baselineRadius"]) - (camHeight - baseY)
+    # draw coordinate system limits
+    # tempImg = cv.line(tempImg, (center -  radiusSize, baseY), (center +  radiusSize, baseY), (255, 255, 0), 2)
+
+    center = (baselineLeft[0] + baselineRight[0]) // 2
+
+
+    localX = map_range(x_avg, (center -  radiusSize) , (center +  radiusSize), -100, 100)
+
+    
 
     # print("Object in local coordinate system", localX, localY)
     # (-100 to 100)

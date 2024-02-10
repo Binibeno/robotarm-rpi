@@ -113,10 +113,10 @@ def armToCM(ser, cmx, reverse):
     a = calcAfromB(b);
 
 
-    print("RADIUS: ", radius)
-    print("M1: ", a)
-    print("M2: ", b)
-    print("M3: ", b)
+    # print("RADIUS: ", radius)
+    # print("M1: ", a)
+    # print("M2: ", b)
+    # print("M3: ", b)
 
     moveMotor(ser, 1, a)
     moveMotor(ser, 2, b)

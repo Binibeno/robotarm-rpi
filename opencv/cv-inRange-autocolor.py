@@ -280,7 +280,7 @@ def serialThread(in_q, ser):
         serialapi.armToCM(ser, mappedRadius, False)
         time.sleep(0.001)
 
-        if (fromTop):
+        if (False):
                 time.sleep(3)
 
                 # where, M1, M2, M3 are the angles of the motors
@@ -288,7 +288,7 @@ def serialThread(in_q, ser):
 
 
                 # lift the arm a bit   
-                serialapi.moveMotor(ser, 1, M1 + 6)
+                serialapi.moveMotor(ser, 1, M1 + 3)
                 serialapi.updateMotor(ser)
                 time.sleep(0.5)
 
@@ -297,7 +297,7 @@ def serialThread(in_q, ser):
                 serialapi.moveMotor(ser, 4, 70)
                 serialapi.moveMotor(ser, 0, max(int(theta) - 8, 0))
                 serialapi.updateMotor(ser)
-                time.sleep(1.5)
+                time.sleep(0.5)
 
 
                 # serialapi.moveMotor(ser, 4, 120)
@@ -308,8 +308,8 @@ def serialThread(in_q, ser):
 
                 # reset to normal
                 serialapi.moveMotor(ser, 4, 90)
-                serialapi.moveMotor(ser, 1, M1 -3)
-                serialapi.moveMotor(ser, 3, M3 -7)
+                serialapi.moveMotor(ser, 1, M1 -5)
+                serialapi.moveMotor(ser, 3, M3 -10)
                 serialapi.updateMotor(ser)
                 time.sleep(0.5)
 
@@ -339,7 +339,7 @@ def calibrateArm(*args):
 def grab(*args):
     # max close: 73
     #  min open:10
-    serialapi.moveMotor(ser, 5, 70)
+    serialapi.moveMotor(ser, 5, 73)
     serialapi.updateMotor(ser)
 def lifthand(*args):
     # max close: 73
@@ -347,6 +347,41 @@ def lifthand(*args):
     serialapi.moveMotor(ser, 1, 60)
     serialapi.moveMotor(ser, 2, 55)
     serialapi.moveMotor(ser, 3, 40)
+    serialapi.updateMotor(ser)
+def moveOutOfTheWay(*args):
+    # serialapi.moveMotor(ser, 0, 90)
+    serialapi.moveMotor(ser, 0, 90)
+    serialapi.moveMotor(ser, 1, 90)
+    serialapi.moveMotor(ser, 2, 90)
+    serialapi.moveMotor(ser, 3, 90)
+    serialapi.moveMotor(ser, 4, 90)
+    serialapi.moveMotor(ser, 5, 90)
+    serialapi.updateMotor(ser)
+def lifthand(*args):
+    # max close: 73
+    #  min open:10
+    serialapi.moveMotor(ser, 1, 60)
+    serialapi.moveMotor(ser, 2, 55)
+    serialapi.moveMotor(ser, 3, 40)
+    serialapi.updateMotor(ser)
+import random
+
+def moveanddrop(*args):
+    # angle to drop at
+    newangle = random.randrange(50,130)
+    (m1, m2, m3) = serialapi.calcToCM(ser, 20, False)
+    serialapi.moveMotor(ser, 0, newangle)
+    serialapi.updateMotor(ser)
+
+    time.sleep(0.3)
+    serialapi.moveMotor(ser, 1, m1)
+    serialapi.moveMotor(ser, 2, m2)
+    serialapi.moveMotor(ser, 3, m3)
+    serialapi.updateMotor(ser)
+
+    time.sleep(0.5)
+    
+    serialapi.moveMotor(ser, 5, 50)
     serialapi.updateMotor(ser)
 
 
@@ -356,6 +391,8 @@ cv.createButton("Grab object",moveFromTop,None,cv.QT_PUSH_BUTTON,1)
 cv.createButton("Calibrate arm (move to max reach)",calibrateArm,None,cv.QT_PUSH_BUTTON,1)
 cv.createButton("Close hand",grab,None,cv.QT_PUSH_BUTTON,1)
 cv.createButton("Lift hand",lifthand,None,cv.QT_PUSH_BUTTON,1)
+cv.createButton("Move arm to other angle, and drop",moveanddrop,None,cv.QT_PUSH_BUTTON,1)
+cv.createButton("Move arm out of the way of the camera",moveOutOfTheWay,None,cv.QT_PUSH_BUTTON,1)
 
 shouldMove = False 
 

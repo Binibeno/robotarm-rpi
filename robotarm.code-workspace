@@ -94,16 +94,7 @@
 			},
 			"editor.parameterHints.enabled": true,
 			"liveServer.settings.port": 5500,
-			"remotefs.remote": {
-			  "binibeno": {
-				"host": "titan.web-server.hu",
-				"port": 21,
-				"scheme": "ftp",
-				"username": "binibeno",
-				"password": "gmh83ImT",
-				"rootPath": "/web"
-			  }
-			},
+			
 			"cssPeek.enable": true,
 			"cssPeek.peekFromLanguages": [
 			  "html",
@@ -215,7 +206,6 @@
 			"remote.SSH.remotePlatform": {
 			  "192.168.0.95": "linux",
 			  "raspberrypi.local": "linux",
-			  "gateway.binibeno.hu": "linux",
 			  "robotarm.local": "linux"
 			},
 			"template-string-converter.enabled": true,

@@ -1,4 +1,11 @@
 {
   "python.analysis.autoImportCompletions": true,
-  "python.analysis.typeCheckingMode": "off"
+  "python.analysis.typeCheckingMode": "off",
+  "workbench.colorCustomizations": {
+    "debugConsole.infoForeground": "#e2dbdb",
+    "debugConsole.errorForeground": "#ff0000",
+    "activityBar.background": "#5B1116",
+    "titleBar.activeBackground": "#7F181F",
+    "titleBar.activeForeground": "#FEFBFB"
+  }
 }

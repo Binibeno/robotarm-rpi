@@ -8,3 +8,6 @@ activate virtual env (installed with instructions from above) before using!!: so
 in vscode set python binary to: /home/admin/mp/bin/python
 
 # https://datasheets.raspberrypi.com/camera/raspberry-pi-camera-guide.pdf
+
+---------------------------------
+picamera examples 

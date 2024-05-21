@@ -1,8 +1,16 @@
+*I promise to make the docs better*
+
+# How to start?
+Run: 
+```
+python cv-inRange-autocolor.py
+```
+
 # My creations to note: 
 - opencv-post_callback.py: This is a minimal example of using the post_callback to draw on the preview window.
 - opencv-select-color.py: Will only show bright green colored objects on a solid white background. (source: https://stackoverflow.com/a/53989391/13167888)
 - cv-select-color-with-border.py: select-color rewritten, gets coords and display a border around the object. (see: https://stackoverflow.com/q/59334191/13167888)
-- cv-color-serial.py: move the robotarm based on colors. **LATEST**
+- cv-color-serial.py: move the robotarm based on colors. 
 
 - readcom_simple.py: Simply find and read a serial port. 
 - movearm.py: The arm-servo-angle calculating algorithm ported to python. 
@@ -10,7 +18,7 @@
 
 ## Creations with color detection (and not AI)
 - cv-inRange-autoColor.py: Imroved cv-inRange-demo, automatically detects the color of the pixel clicked, and uses that as the color to make a mask.
--  **LATEST** cv-autocolor-serial.py: cv-inRange-autoColor with the ability to control the robot arm with serial.
+-  cv-autocolor-serial.py: cv-inRange-autoColor with the ability to control the robot arm with serial.
 - cv-get-color.py: Get the color of the pixel clicked, in RGB and HSV format
 - cv-select-color-with-border(-HSV).py: Creates a mask from a given color range, and draws a border around the object.
 
